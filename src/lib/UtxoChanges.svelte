@@ -15,6 +15,7 @@
     let utxoChanges = [];
     let requestingData = false;
     let output;
+    let explorerUrl = "";
 
     const getUtxoChanges = async () => {
         try {
@@ -39,6 +40,14 @@
         try {
             let client = getClient();
             output = await client.getOutput(outputId);
+            let info = await client.getInfo();
+            if (info.nodeInfo.protocol.networkName == "testnet-1") {
+                explorerUrl =
+                    "https://explorer.shimmer.network/testnet/transaction/";
+            } else if (info.nodeInfo.protocol.networkName == "shimmer") {
+                explorerUrl =
+                    "https://explorer.shimmer.network/shimmer/transaction/";
+            }
         } catch (err) {
             alert(err);
         }
@@ -52,7 +61,7 @@
                 startIndex = endIndex - 9;
             }
         } catch (err) {
-            if (alertOnError){
+            if (alertOnError) {
                 alert(err);
             }
         }
@@ -121,10 +130,21 @@
                 {/each}
             </table>
             {#if output}
-                <pre style="text-align: left;">
-                  {JSON.stringify(output, null, 2)}
+                <div>
+                    {#if explorerUrl != ""}
+                        <a
+                            href={explorerUrl + output.metadata.transactionId}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="float:left;"
+                        >
+                            View tx in explorer</a
+                        >
+                    {/if}
+                    <pre style="text-align: left;">
+                    {JSON.stringify(output, null, 2)}
                 </pre>
-                <br />
+                </div>
             {/if}
         {:else}
             No new outputs
