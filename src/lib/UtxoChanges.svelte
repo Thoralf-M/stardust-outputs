@@ -5,7 +5,7 @@
     onMount(async () => {
         try {
             await init();
-            await updateLatestMilestoneIndex();
+            await updateLatestMilestoneIndex(false);
         } catch (err) {
             alert(err);
         }
@@ -44,7 +44,7 @@
         }
     };
 
-    export const updateLatestMilestoneIndex = async () => {
+    export const updateLatestMilestoneIndex = async (alertOnError) => {
         try {
             let nodeInfo = await getClient().getInfo();
             endIndex = nodeInfo.nodeInfo.status.latestMilestone.index;
@@ -52,13 +52,15 @@
                 startIndex = endIndex - 9;
             }
         } catch (err) {
-            alert(err);
+            if (alertOnError){
+                alert(err);
+            }
         }
     };
 </script>
 
 <main>
-    <input
+    Milestone range: <input
         type="number"
         size="10"
         bind:value={startIndex}
@@ -70,7 +72,7 @@
         bind:value={endIndex}
         placeholder="milestone start index"
     />
-    <button on:click={updateLatestMilestoneIndex}>
+    <button on:click={() => updateLatestMilestoneIndex(true)}>
         range latest 10 milestones</button
     >
     <br />
@@ -79,7 +81,7 @@
     {#if requestingData}
         <div style="color: red;">
             Requesting data...
-            <!-- TODO: https://svelte.dev/examples/tweened -->
+            <!-- TODO: maybe use https://svelte.dev/examples/tweened -->
         </div>
         <br />
     {/if}
